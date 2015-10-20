@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace NStripe
 {
-    internal interface IResponse
+    public interface IResponse
     {
     }
 
-    internal interface IResponse<T> : IResponse
+    public interface IResponse<T> : IResponse
     {
     }
 }

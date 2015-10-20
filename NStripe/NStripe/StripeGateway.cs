@@ -27,25 +27,25 @@ namespace NStripe
 
         public T PostRequest<T>(string url, string stringToPost, string idempotencyKey = null)
         {
-            WebRequest request = PrepareRequest(url, "POST", stringToPost, idempotencyKey);
+            WebRequest request = PrepareRequest(url, HttpMethod.Post, stringToPost, idempotencyKey);
             return ExecuteRequest<T>(request);
         }
 
         public T GetRequest<T>(string url)
         {
-            WebRequest request = PrepareRequest(url, "GET");
+            WebRequest request = PrepareRequest(url, HttpMethod.Get);
             return ExecuteRequest<T>(request);
         }
 
         public T PutRequest<T>(string url, string stringToPut)
         {
-            WebRequest request = PrepareRequest(url, "PUT", stringToPut);
+            WebRequest request = PrepareRequest(url, HttpMethod.Put, stringToPut);
             return ExecuteRequest<T>(request);
         }
 
         public T DeleteRequest<T>(string url, string stringToDelete)
         {
-            WebRequest request = PrepareRequest(url, "DELETE", stringToDelete);
+            WebRequest request = PrepareRequest(url, HttpMethod.Delete, stringToDelete);
             return ExecuteRequest<T>(request);
         }
 
@@ -82,14 +82,14 @@ namespace NStripe
             return responseAsString.FromJson<T>();
         }
 
-        public HttpWebRequest PrepareRequest(string url, string httpMethod, string stringToSend = null, string idempotencyKey = null)
+        public HttpWebRequest PrepareRequest(string url, string httpMethod, string body = null, string idempotencyKey = null)
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(BaseUrl + url);
             request.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
             request.Headers.Add(HttpRequestHeader.AcceptEncoding, "gzip, deflate");
             request.Accept = MediaTypes.Json;
             request.Credentials = Credentials;
-            if (httpMethod == "POST" || httpMethod == "PUT")
+            if (httpMethod == HttpMethod.Post || httpMethod == HttpMethod.Put)
                 request.ContentType = MediaTypes.FormUrlEncoded;
 
             if (!string.IsNullOrWhiteSpace(idempotencyKey))
@@ -97,15 +97,15 @@ namespace NStripe
 
             request.Method = httpMethod;
 
-            if (httpMethod.Equals("POST") && stringToSend == null)
+            if (httpMethod.Equals(HttpMethod.Post) && body == null)
             {
                 throw new ArgumentNullException("body");
             }
 
-            if (stringToSend != null)
+            if (body != null)
             {
                 ASCIIEncoding encode = new ASCIIEncoding();
-                byte[] requestData = encode.GetBytes(stringToSend);
+                byte[] requestData = encode.GetBytes(body);
                 request.ContentLength = requestData.Length;
                 try
                 {
@@ -135,6 +135,16 @@ namespace NStripe
             {
                 throw new Exception("Error reading response stream" + e);
             }
+        }
+
+        public T Get<T>(IResponse<T> request)
+        {
+            return Execute(request, HttpMethod.Get);
+        }
+
+        private T Execute<T>(IResponse<T> request, string httpMethod)
+        {
+            return default(T);
         }
     }
 }
