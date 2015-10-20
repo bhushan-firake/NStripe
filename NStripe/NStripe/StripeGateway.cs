@@ -25,13 +25,7 @@ namespace NStripe
             UserAgent = "NStripe";
         }
 
-        public T PostRequest<T>(string url, string stringToPost)
-        {
-            WebRequest request = PrepareRequest(url, "POST", stringToPost);
-            return ExecuteRequest<T>(request);
-        }
-
-        public T PostRequest<T>(string url, string stringToPost, string idempotencyKey)
+        public T PostRequest<T>(string url, string stringToPost, string idempotencyKey = null)
         {
             WebRequest request = PrepareRequest(url, "POST", stringToPost, idempotencyKey);
             return ExecuteRequest<T>(request);
