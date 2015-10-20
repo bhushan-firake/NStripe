@@ -41,6 +41,8 @@
   <ItemGroup>
     <Compile Include="IResponse.cs" />
     <Compile Include="RouteAttribute.cs" />
+    <Compile Include="StripeError.cs" />
+    <Compile Include="StripeException.cs" />
     <Compile Include="StripeGateway.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
