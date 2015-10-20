@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Cache.cs" />
     <Compile Include="HttpMethod.cs" />
     <Compile Include="IResponse.cs" />
     <Compile Include="MediaTypes.cs" />

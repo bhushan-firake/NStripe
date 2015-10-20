@@ -28,28 +28,28 @@ namespace NStripe
         public T PostRequest<T>(string url, string stringToPost, string idempotencyKey = null)
         {
             WebRequest request = PrepareRequest(url, HttpMethod.Post, stringToPost, idempotencyKey);
-            return ExecuteRequest<T>(request);
+            return ExecuteInternal<T>(request);
         }
 
         public T GetRequest<T>(string url)
         {
             WebRequest request = PrepareRequest(url, HttpMethod.Get);
-            return ExecuteRequest<T>(request);
+            return ExecuteInternal<T>(request);
         }
 
         public T PutRequest<T>(string url, string stringToPut)
         {
             WebRequest request = PrepareRequest(url, HttpMethod.Put, stringToPut);
-            return ExecuteRequest<T>(request);
+            return ExecuteInternal<T>(request);
         }
 
         public T DeleteRequest<T>(string url, string stringToDelete)
         {
             WebRequest request = PrepareRequest(url, HttpMethod.Delete, stringToDelete);
-            return ExecuteRequest<T>(request);
+            return ExecuteInternal<T>(request);
         }
 
-        public T ExecuteRequest<T>(WebRequest request)
+        public T ExecuteInternal<T>(WebRequest request)
         {
             string responseAsString = string.Empty;
 
@@ -97,7 +97,7 @@ namespace NStripe
 
             request.Method = httpMethod;
 
-            if (httpMethod.Equals(HttpMethod.Post) && body == null)
+            if ((httpMethod.Equals(HttpMethod.Post) || httpMethod.Equals(HttpMethod.Put)) && body == null)
             {
                 throw new ArgumentNullException("body");
             }
@@ -142,9 +142,10 @@ namespace NStripe
             return Execute(request, HttpMethod.Get);
         }
 
-        private T Execute<T>(IResponse<T> request, string httpMethod)
+        private T Execute<T>(IResponse<T> request, string httpMethod, string idempotencyKey = null)
         {
-            return default(T);
+            var webRequest = PrepareRequest(request.ToUrl(), httpMethod, request.ToString(), idempotencyKey);
+            return ExecuteInternal<T>(webRequest);
         }
     }
 }
