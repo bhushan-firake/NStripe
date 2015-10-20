@@ -14,6 +14,7 @@ namespace NStripe
 
         private string apiKey;
         private string publishableKey;
+
         public ICredentials Credentials { get; set; }
         private string UserAgent { get; set; }
 
@@ -89,24 +90,21 @@ namespace NStripe
             request.Headers.Add(HttpRequestHeader.AcceptEncoding, "gzip, deflate");
             request.Accept = MediaTypes.Json;
             request.Credentials = Credentials;
+            request.Method = httpMethod;
+
             if (httpMethod == HttpMethod.Post || httpMethod == HttpMethod.Put)
                 request.ContentType = MediaTypes.FormUrlEncoded;
 
-            if (!string.IsNullOrWhiteSpace(idempotencyKey))
+            if (!string.IsNullOrEmpty(idempotencyKey))
                 request.Headers["Idempotency-Key"] = idempotencyKey;
 
-            request.Method = httpMethod;
-
             if ((httpMethod.Equals(HttpMethod.Post) || httpMethod.Equals(HttpMethod.Put)) && body == null)
-            {
                 throw new ArgumentNullException("body");
-            }
 
             if (body != null)
             {
                 ASCIIEncoding encode = new ASCIIEncoding();
                 byte[] requestData = encode.GetBytes(body);
-                request.ContentLength = requestData.Length;
                 try
                 {
                     using (Stream stream = request.GetRequestStream())
