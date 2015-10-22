@@ -36,6 +36,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -44,9 +45,23 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Cache.cs" />
+    <Compile Include="EpochDateTimeConverter.cs" />
     <Compile Include="HttpMethod.cs" />
+    <Compile Include="IMeta.cs" />
     <Compile Include="IResponse.cs" />
+    <Compile Include="JsonSerializerScope.cs" />
+    <Compile Include="LowercaseUnderscorePropertyNamesContractResolver.cs" />
     <Compile Include="MediaTypes.cs" />
+    <Compile Include="Models\StripeCharge.cs" />
+    <Compile Include="Models\StripeCollection.cs" />
+    <Compile Include="Models\StripeCoupon.cs" />
+    <Compile Include="Models\StripeCustomer.cs" />
+    <Compile Include="Models\StripeDiscount.cs" />
+    <Compile Include="Models\StripeId.cs" />
+    <Compile Include="Models\StripeObject.cs" />
+    <Compile Include="Models\StripeRequestBase.cs" />
+    <Compile Include="Models\StripeSubscription.cs" />
+    <Compile Include="Models\StripeType.cs" />
     <Compile Include="RouteAttribute.cs" />
     <Compile Include="StringExtensions.cs" />
     <Compile Include="StripeError.cs" />

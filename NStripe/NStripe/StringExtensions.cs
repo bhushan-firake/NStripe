@@ -11,11 +11,22 @@ namespace NStripe
 {
     internal static class StringExtensions
     {
+        public const long UnixEpoch = 621355968000000000L;
+        private static readonly DateTime UnixEpochDateTimeUtc = new DateTime(UnixEpoch, DateTimeKind.Utc);
+
+        public static DateTime FromUnixTime(this long unixTime)
+        {
+            return UnixEpochDateTimeUtc + TimeSpan.FromSeconds(unixTime);
+        }
+
         internal static string ToJson<T>(this T TObject)
         {
             if (TObject != null)
             {
-                return JsonConvert.SerializeObject(TObject);
+                using (new JsonSerializerScope())
+                {
+                    return JsonConvert.SerializeObject(TObject);
+                }
             }
             return string.Empty;
         }
@@ -24,8 +35,10 @@ namespace NStripe
         {
             if (string.IsNullOrEmpty(json))
                 return default(T);
-
-            return JsonConvert.DeserializeObject<T>(json);
+            using (new JsonSerializerScope())
+            {
+                return JsonConvert.DeserializeObject<T>(json);
+            }
         }
 
         private const int LowerCaseOffset = 'a' - 'A';

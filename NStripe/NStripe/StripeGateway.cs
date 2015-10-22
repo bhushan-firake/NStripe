@@ -137,12 +137,17 @@ namespace NStripe
 
         public T Get<T>(IResponse<T> request)
         {
-            return Execute(request, HttpMethod.Get);
+            return Execute(request, HttpMethod.Get, null);
         }
 
-        private T Execute<T>(IResponse<T> request, string httpMethod, string idempotencyKey = null)
+        public T Post<T>(IResponse<T> request)
         {
-            var webRequest = PrepareRequest(request.ToUrl(), httpMethod, request.ToString(), idempotencyKey);
+            return Execute(request, HttpMethod.Post, request.ToString());
+        }
+
+        private T Execute<T>(IResponse<T> request, string httpMethod, string body = null, string idempotencyKey = null)
+        {
+            var webRequest = PrepareRequest(request.ToUrl(), httpMethod, body, idempotencyKey);
             return ExecuteInternal<T>(webRequest);
         }
     }
