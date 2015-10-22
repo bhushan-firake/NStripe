@@ -26,61 +26,49 @@ namespace NStripe
             UserAgent = "NStripe";
         }
 
-        public T PostRequest<T>(string url, string stringToPost, string idempotencyKey = null)
+        public IResult<T> ExecuteInternal<T>(WebRequest request)
         {
-            WebRequest request = PrepareRequest(url, HttpMethod.Post, stringToPost, idempotencyKey);
-            return ExecuteInternal<T>(request);
-        }
-
-        public T GetRequest<T>(string url)
-        {
-            WebRequest request = PrepareRequest(url, HttpMethod.Get);
-            return ExecuteInternal<T>(request);
-        }
-
-        public T PutRequest<T>(string url, string stringToPut)
-        {
-            WebRequest request = PrepareRequest(url, HttpMethod.Put, stringToPut);
-            return ExecuteInternal<T>(request);
-        }
-
-        public T DeleteRequest<T>(string url, string stringToDelete)
-        {
-            WebRequest request = PrepareRequest(url, HttpMethod.Delete, stringToDelete);
-            return ExecuteInternal<T>(request);
-        }
-
-        public T ExecuteInternal<T>(WebRequest request)
-        {
-            string responseAsString = string.Empty;
+            Result<T> result = new Result<T>();
 
             try
             {
                 HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                responseAsString = HandleResponse(response);
+                Stream responseStream = response.GetResponseStream();
+                using (StreamReader reader = new StreamReader(responseStream))
+                {
+                    result.RawResponse = reader.ReadToEnd();
+                }
+                result.Success = true;
+                result.StatusCode = response.StatusCode;
+                result.StatusDescription = ToErrorDescription((int)response.StatusCode);
+                result.Data = result.RawResponse.FromJson<T>();
+                result.RequestId = response.Headers[StripeHeaders.RequestId];
+                result.StripeVersion = response.Headers[StripeHeaders.StripeVersion];
             }
             catch (WebException ex)
             {
-                string errorBody = string.Empty;
+                //result.Success = false;
+
                 var httpRes = ex.Response as HttpWebResponse;
                 using (var stream = httpRes.GetResponseStream())
                 using (var reader = new StreamReader(stream))
                 {
-                    errorBody = reader.ReadToEnd();
+                    result.RawResponse = reader.ReadToEnd();
                 }
-                var errorStatus = httpRes.StatusCode;
+                result.StatusCode = httpRes.StatusCode;
+                result.StatusDescription = ToErrorDescription((int)result.StatusCode);
 
-                if (errorStatus >= HttpStatusCode.BadRequest && errorStatus < HttpStatusCode.InternalServerError)
+                if (result.StatusCode >= HttpStatusCode.BadRequest && result.StatusCode < HttpStatusCode.InternalServerError)
                 {
-                    var result = errorBody.FromJson<StripeErrors>();
-                    throw new StripeException(result.Error)
-                    {
-                        StatusCode = errorStatus
-                    };
+                    result.Error = result.RawResponse.FromJson<StripeErrors>().Error;
+                    //throw new StripeException(result.Error)
+                    //{
+                    //    StatusCode = result.StatusCode
+                    //};
                 }
-                throw;
+                //throw;
             }
-            return responseAsString.FromJson<T>();
+            return result;
         }
 
         public HttpWebRequest PrepareRequest(string url, string httpMethod, string body = null, string idempotencyKey = null)
@@ -88,6 +76,7 @@ namespace NStripe
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(BaseUrl + url);
             request.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
             request.Headers.Add(HttpRequestHeader.AcceptEncoding, "gzip, deflate");
+            request.Headers.Add(StripeHeaders.StripeVersion, NStripeConfig.StripeVersion);
             request.Accept = MediaTypes.Json;
             request.Credentials = Credentials;
             request.Method = httpMethod;
@@ -96,7 +85,7 @@ namespace NStripe
                 request.ContentType = MediaTypes.FormUrlEncoded;
 
             if (!string.IsNullOrEmpty(idempotencyKey))
-                request.Headers["Idempotency-Key"] = idempotencyKey;
+                request.Headers[StripeHeaders.IdempotencyKey] = idempotencyKey;
 
             if ((httpMethod.Equals(HttpMethod.Post) || httpMethod.Equals(HttpMethod.Put)) && body == null)
                 throw new ArgumentNullException("body");
@@ -121,34 +110,50 @@ namespace NStripe
             return request;
         }
 
-        public string HandleResponse(HttpWebResponse response)
-        {
-            try
-            {
-                Stream responseStream = response.GetResponseStream();
-                using (StreamReader reader = new StreamReader(responseStream))
-                    return reader.ReadToEnd();
-            }
-            catch (Exception e)
-            {
-                throw new Exception("Error reading response stream" + e);
-            }
-        }
-
-        public T Get<T>(IResponse<T> request)
+        public IResult<T> Get<T>(IResponse<T> request)
         {
             return Execute(request, HttpMethod.Get, null);
         }
 
-        public T Post<T>(IResponse<T> request)
+        public IResult<T> Post<T>(IResponse<T> request, string idempotencyKey = null)
         {
-            return Execute(request, HttpMethod.Post, request.ToString());
+            return Execute(request, HttpMethod.Post, request.ToString(), idempotencyKey);
         }
 
-        private T Execute<T>(IResponse<T> request, string httpMethod, string body = null, string idempotencyKey = null)
+        private IResult<T> Execute<T>(IResponse<T> request, string httpMethod, string body = null, string idempotencyKey = null)
         {
             var webRequest = PrepareRequest(request.ToUrl(), httpMethod, body, idempotencyKey);
             return ExecuteInternal<T>(webRequest);
+        }
+
+        public string ToErrorDescription(int statusCode)
+        {
+            switch (statusCode)
+            {
+                case 200:
+                    return "Everything worked as expected.";
+
+                case 400:
+                    return "Often missing a required parameter.";
+
+                case 401:
+                    return "No valid API key provided.";
+
+                case 402:
+                    return "Parameters were valid but request failed.";
+
+                case 404:
+                    return "The requested item doesn't exist.";
+
+                case 500:
+                case 502:
+                case 503:
+                case 504:
+                    return "Something went wrong on Stripe's end.";
+
+                default:
+                    return "Unclassified error";
+            }
         }
     }
 }
