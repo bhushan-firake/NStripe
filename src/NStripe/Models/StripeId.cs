@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace NStripe
+﻿namespace NStripe
 {
     public class StripeId : StripeObject
     {
