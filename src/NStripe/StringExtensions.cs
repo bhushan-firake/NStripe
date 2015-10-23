@@ -35,6 +35,7 @@ namespace NStripe
         {
             if (string.IsNullOrEmpty(json))
                 return default(T);
+
             using (new JsonSerializerScope())
             {
                 return JsonConvert.DeserializeObject<T>(json);

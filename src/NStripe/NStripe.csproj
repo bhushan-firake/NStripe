@@ -48,7 +48,6 @@
     <Compile Include="Cache.cs" />
     <Compile Include="EpochDateTimeConverter.cs" />
     <Compile Include="HttpMethod.cs" />
-    <Compile Include="IMeta.cs" />
     <Compile Include="IntExtensions.cs" />
     <Compile Include="IResponse.cs" />
     <Compile Include="IResult.cs" />
