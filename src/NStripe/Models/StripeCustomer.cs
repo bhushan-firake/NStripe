@@ -6,9 +6,17 @@ namespace NStripe
     [Route("/customers", "POST")]
     public class CreateStripeCustomer : StripeRequestBase, IResponse<StripeCustomer>
     {
-        public string Email { get; set; }
+        public int? AccountBalance { get; set; }
+        public string Coupon { get; set; }
         public string Description { get; set; }
-        public int AccountBalance { get; set; }
+        public string Email { get; set; }
+        public Dictionary<string, string> Metadata { get; set; }
+        public int? Quantity { get; set; }
+        public StripeShippingInformation Shipping { get; set; }
+        public decimal? TaxPercent { get; set; }
+        public DateTime? TrialEnd { get; set; }
+
+        //TODO:Source can also be a dictionary
         public string Source { get; set; }
     }
 
