@@ -10,6 +10,7 @@ namespace NStripe
     public class NStripeConfig
     {
         private static string supportedStripeVersion = "2015-10-16";
+        private static string apiKey;
 
         static NStripeConfig()
         {
@@ -22,14 +23,13 @@ namespace NStripe
         {
             get
             {
-                string apiKey = ConfigurationManager.AppSettings["Stripe:ApiKey"];
-                if (!string.IsNullOrEmpty(apiKey))
-                    return apiKey;
-                return "";
+                if (string.IsNullOrEmpty(apiKey))
+                    apiKey = ConfigurationManager.AppSettings["Stripe:ApiKey"];
+                return apiKey;
             }
             set
             {
-                ApiKey = value;
+                apiKey = value;
             }
         }
     }

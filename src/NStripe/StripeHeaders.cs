@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NStripe
 {
-    public class StripeHeaders
+    internal class StripeHeaders
     {
         public const string IdempotencyKey = "Idempotency-Key";
         public const string RequestId = "Request-Id";
