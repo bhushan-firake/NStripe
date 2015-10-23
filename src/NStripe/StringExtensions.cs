@@ -108,24 +108,26 @@ namespace NStripe
                 var route = routeAttrbs[0] as RouteAttribute;
 
                 string templatedUrl = route.Path;
-
-                HashSet<PropertyInfo> propertyInfos;
-                if (!Cache.TypeCache.TryGetValue(type, out propertyInfos))
+                if (templatedUrl.Contains('{') && templatedUrl.Contains('}'))
                 {
-                    propertyInfos = new HashSet<PropertyInfo>(type.GetProperties());
-                    Cache.TypeCache.TryAdd(type, propertyInfos);
-                }
+                    HashSet<PropertyInfo> propertyInfos;
+                    if (!Cache.TypeCache.TryGetValue(type, out propertyInfos))
+                    {
+                        propertyInfos = new HashSet<PropertyInfo>(type.GetProperties());
+                        Cache.TypeCache.TryAdd(type, propertyInfos);
+                    }
 
-                foreach (var propertyInfo in propertyInfos)
-                {
-                    var replaceableValue = propertyInfo.GetValue(requestObject, null);
+                    foreach (var propertyInfo in propertyInfos)
+                    {
+                        var replaceableValue = propertyInfo.GetValue(requestObject, null);
 
-                    if (replaceableValue == null)
-                        continue;
+                        if (replaceableValue == null)
+                            continue;
 
-                    string replaceableProperty = "{" + propertyInfo.Name.ToCamelCase() + "}";
+                        string replaceableProperty = "{" + propertyInfo.Name.ToCamelCase() + "}";
 
-                    templatedUrl = templatedUrl.Replace(replaceableProperty, replaceableValue.ToString());
+                        templatedUrl = templatedUrl.Replace(replaceableProperty, replaceableValue.ToString());
+                    }
                 }
 
                 Console.WriteLine("Url Created in {0} ticks", timer.ElapsedTicks);
