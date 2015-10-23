@@ -16,7 +16,7 @@ namespace NStripe
         private string apiKey;
         private string publishableKey;
 
-        public ICredentials Credentials { get; set; }
+        private ICredentials Credentials { get; set; }
         private string UserAgent { get; set; }
 
         public StripeGateway(string apiKey = null, string publishableKey = null)
@@ -30,6 +30,10 @@ namespace NStripe
                 if (string.IsNullOrEmpty(configuredApiKey))
                     throw new ConfigurationErrorsException("Stripe ApiKey not configured.");
                 this.apiKey = configuredApiKey;
+            }
+            else
+            {
+                NStripeConfig.ApiKey = this.apiKey;
             }
 
             Credentials = new NetworkCredential(this.apiKey, "");
