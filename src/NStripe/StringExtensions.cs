@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Web;
 
 namespace NStripe
 {
@@ -94,47 +95,17 @@ namespace NStripe
             return sb.ToString();
         }
 
-        internal static string ToUrl(this object requestObject)
+        internal static string ToUrlEncoded(this string str)
         {
-            var timer = new Stopwatch();
-            timer.Start();
+            if (string.IsNullOrEmpty(str))
+                return "";
 
-            var type = requestObject.GetType();
+            return HttpUtility.UrlEncode(str);
+        }
 
-            var routeAttrbs = type.GetCustomAttributes(typeof(RouteAttribute), false);
-
-            if (routeAttrbs != null && routeAttrbs.Length > 0)
-            {
-                var route = routeAttrbs[0] as RouteAttribute;
-
-                string templatedUrl = route.Path;
-                if (templatedUrl.Contains('{') && templatedUrl.Contains('}'))
-                {
-                    HashSet<PropertyInfo> propertyInfos;
-                    if (!Cache.TypeCache.TryGetValue(type, out propertyInfos))
-                    {
-                        propertyInfos = new HashSet<PropertyInfo>(type.GetProperties());
-                        Cache.TypeCache.TryAdd(type, propertyInfos);
-                    }
-
-                    foreach (var propertyInfo in propertyInfos)
-                    {
-                        var replaceableValue = propertyInfo.GetValue(requestObject, null);
-
-                        if (replaceableValue == null)
-                            continue;
-
-                        string replaceableProperty = "{" + propertyInfo.Name.ToCamelCase() + "}";
-
-                        templatedUrl = templatedUrl.Replace(replaceableProperty, replaceableValue.ToString());
-                    }
-                }
-
-                Console.WriteLine("Url Created in {0} ticks", timer.ElapsedTicks);
-
-                return templatedUrl;
-            }
-            return string.Empty;
+        internal static string AppendParam(this string str, string key, string value)
+        {
+            return string.Format("{0}{1}={2}", str.Length > 0 ? "&" : string.Empty, key, value.ToUrlEncoded());
         }
     }
 }
