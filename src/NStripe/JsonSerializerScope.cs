@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace NStripe
 {
-    public class JsonSerializerScope : IDisposable
+    internal class JsonSerializerScope : IDisposable
     {
         private readonly Func<JsonSerializerSettings> holdSerializerSettings;
 
