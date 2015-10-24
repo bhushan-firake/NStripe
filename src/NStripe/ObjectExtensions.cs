@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -25,6 +26,9 @@ namespace NStripe
 
             foreach (var propertyInfo in propertyInfos)
             {
+                if (Attribute.IsDefined(propertyInfo, typeof(IgnoreDataMemberAttribute)))
+                    continue;
+
                 var propertyValue = propertyInfo.GetValue(@object, null);
 
                 if (propertyValue == null) continue;

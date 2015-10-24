@@ -42,6 +42,11 @@ namespace NStripe
             return Execute(request, HttpMethod.Get, null);
         }
 
+        public IResult<T> Delete<T>(IResponse<T> request)
+        {
+            return Execute(request, HttpMethod.Delete, null);
+        }
+
         public IResult<T> Post<T>(IResponse<T> request, string idempotencyKey = null)
         {
             return Execute(request, HttpMethod.Post, request.ToString(), idempotencyKey);
