@@ -11,7 +11,7 @@ namespace NStripe
 {
     internal static class ObjectExtensions
     {
-        public static string ToQueryString(this object @object)
+        public static string ToQueryString(this object @object, string propertyName = null)
         {
             StringBuilder queryStringBuilder = new StringBuilder();
             HashSet<PropertyInfo> propertyInfos;
@@ -29,7 +29,12 @@ namespace NStripe
 
                 if (propertyValue == null) continue;
 
-                string propertyNameWithUnderscore = propertyInfo.Name.ToLowercaseUnderscore();
+                string propertyNameWithUnderscore = string.Empty;
+
+                if (string.IsNullOrEmpty(propertyName))
+                    propertyNameWithUnderscore = propertyInfo.Name.ToLowercaseUnderscore();
+                else
+                    propertyNameWithUnderscore = string.Format("{0}[{1}]", propertyName, propertyInfo.Name.ToLowercaseUnderscore());
 
                 if (propertyValue.GetType().IsDictionary())
                 {
@@ -38,6 +43,15 @@ namespace NStripe
                     {
                         queryStringBuilder.Append(queryStringBuilder.ToString().AppendParam(string.Format("{0}[{1}]", propertyNameWithUnderscore, key), dictionaryValue[key]));
                     }
+                    continue;
+                }
+
+                if (propertyInfo.IsInstanceProperty(type))
+                {
+                    if (queryStringBuilder.Length > 0)
+                        queryStringBuilder.Append("&");
+
+                    queryStringBuilder.Append(propertyValue.ToQueryString(propertyNameWithUnderscore));
                     continue;
                 }
 
@@ -91,6 +105,11 @@ namespace NStripe
                 return templatedUrl;
             }
             return string.Empty;
+        }
+
+        public static bool IsInstanceProperty(this PropertyInfo pi, Type type)
+        {
+            return pi.PropertyType.IsClass && pi.PropertyType.Assembly.FullName == type.Assembly.FullName;
         }
     }
 }
