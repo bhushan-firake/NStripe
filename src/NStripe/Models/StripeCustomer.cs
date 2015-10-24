@@ -12,7 +12,7 @@ namespace NStripe
         public string Email { get; set; }
         public Dictionary<string, string> Metadata { get; set; }
         public int? Quantity { get; set; }
-        public StripeShippingInformation Shipping { get; set; }
+        public StripeShippingInfo Shipping { get; set; }
         public decimal? TaxPercent { get; set; }
         public DateTime? TrialEnd { get; set; }
 
@@ -38,7 +38,7 @@ namespace NStripe
         public string Email { get; set; }
         public bool? Livemode { get; set; }
         public Dictionary<string, string> Metadata { get; set; }
-        public StripeShippingInformation Shipping { get; set; }
+        public StripeShippingInfo Shipping { get; set; }
 
         //TODO:Add Payment Sources bitcoin receivers/cards
 
@@ -47,9 +47,11 @@ namespace NStripe
         public bool? Deleted { get; set; }
     }
 
-    public class StripeShippingInformation
+    public class StripeShippingInfo
     {
         public StripeShippingAddress Address { get; set; }
+        public string Name { get; set; }
+        public string Phone { get; set; }
     }
 
     public class StripeShippingAddress
@@ -60,7 +62,5 @@ namespace NStripe
         public string Line2 { get; set; }
         public string PostalCode { get; set; }
         public string State { get; set; }
-        public string Name { get; set; }
-        public string Phone { get; set; }
     }
 }
