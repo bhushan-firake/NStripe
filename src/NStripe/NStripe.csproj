@@ -55,13 +55,17 @@
     <Compile Include="JsonSerializerScope.cs" />
     <Compile Include="LowercaseUnderscorePropertyNamesContractResolver.cs" />
     <Compile Include="MediaTypes.cs" />
+    <Compile Include="Models\StripeBalanceTransaction.cs" />
     <Compile Include="Models\StripeCharge.cs" />
     <Compile Include="Models\StripeCollection.cs" />
     <Compile Include="Models\StripeCoupon.cs" />
     <Compile Include="Models\StripeCustomer.cs" />
     <Compile Include="Models\StripeDiscount.cs" />
+    <Compile Include="Models\StripeDispute.cs" />
     <Compile Include="Models\StripeId.cs" />
     <Compile Include="Models\StripeObject.cs" />
+    <Compile Include="Models\StripePlan.cs" />
+    <Compile Include="Models\StripeRefund.cs" />
     <Compile Include="Models\StripeRequestBase.cs" />
     <Compile Include="Models\StripeSubscription.cs" />
     <Compile Include="Models\StripeType.cs" />
