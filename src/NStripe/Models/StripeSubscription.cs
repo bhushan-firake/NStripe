@@ -14,9 +14,7 @@ namespace NStripe
         public StripeDiscount Discount { get; set; }
         public DateTime? EndedAt { get; set; }
         public Dictionary<string, string> Metadata { get; set; }
-
-        //TODO:Add Stripe Plan
-
+        public StripePlan Plan { get; set; }
         public int Quantity { get; set; }
         public DateTime? Start { get; set; }
         public StripeSubscriptionStatus Status { get; set; }
