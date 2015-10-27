@@ -1,2 +1,4 @@
 # NStripe
-A pre-built library for interacting with Stripe
+A library, currently in heavy development,  for interacting with [Stripe REST API](https://stripe.com/docs/api).
+
+
