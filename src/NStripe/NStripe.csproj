@@ -56,6 +56,7 @@
     <Compile Include="LowercaseUnderscorePropertyNamesContractResolver.cs" />
     <Compile Include="MediaTypes.cs" />
     <Compile Include="Models\StripeBalanceTransaction.cs" />
+    <Compile Include="Models\StripeCard.cs" />
     <Compile Include="Models\StripeCharge.cs" />
     <Compile Include="Models\StripeCollection.cs" />
     <Compile Include="Models\StripeCoupon.cs" />
