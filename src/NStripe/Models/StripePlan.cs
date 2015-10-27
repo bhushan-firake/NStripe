@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 
 namespace NStripe
 {
+    #region Request
+
     [Route("/plans", "POST")]
     public class CreateStripePlan : StripeRequestBase, IResponse<StripePlan>
     {
@@ -51,6 +53,8 @@ namespace NStripe
 
         //TODO:Add Created date filter
     }
+
+    #endregion Request
 
     public enum PlanInterval
     {
