@@ -55,6 +55,7 @@
     <Compile Include="JsonSerializerScope.cs" />
     <Compile Include="LowercaseUnderscorePropertyNamesContractResolver.cs" />
     <Compile Include="MediaTypes.cs" />
+    <Compile Include="Models\StripeAccount.cs" />
     <Compile Include="Models\StripeBalanceTransaction.cs" />
     <Compile Include="Models\StripeCard.cs" />
     <Compile Include="Models\StripeCharge.cs" />
