@@ -6,6 +6,15 @@ using System.Threading.Tasks;
 
 namespace NStripe
 {
+    #region Request
+
+    [Route("/balance", "GET")]
+    public class RetrieveStripeBalance : StripeRequestBase, IResponse<StripeBalance>
+    {
+    }
+
+    #endregion Request
+
     public class StripeBalance : StripeId
     {
         public Dictionary<string, object> Available { get; set; }
