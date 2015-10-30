@@ -1,0 +1,15 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace NStripe
+{
+    public class StripeBalance : StripeId
+    {
+        public Dictionary<string, object> Available { get; set; }
+        public bool Livemode { get; set; }
+        public Dictionary<string, object> Pending { get; set; }
+    }
+}
