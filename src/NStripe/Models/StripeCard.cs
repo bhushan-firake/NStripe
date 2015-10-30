@@ -86,7 +86,7 @@ namespace NStripe
         public string AddressState { get; set; }
         public string AddressZip { get; set; }
         public string AddressZipCheck { get; set; }
-        public StripeCardType Brand { get; set; }
+        public string Brand { get; set; }
         public string Country { get; set; }
         public string Currency { get; set; }
 
@@ -109,12 +109,12 @@ namespace NStripe
 
     public static class StripeCardType
     {
-        public static const string Visa = "Visa";
-        public static const string AmericanExpress = "American Express";
-        public static const string MasterCard = "MasterCard";
-        public static const string Discover = "Discover";
-        public static const string JCB = "JCB";
-        public static const string DinersClub = "Diners Club";
-        public static const string Unknown = "Unknown";
+        public static string Visa = "Visa";
+        public static string AmericanExpress = "American Express";
+        public static string MasterCard = "MasterCard";
+        public static string Discover = "Discover";
+        public static string JCB = "JCB";
+        public static string DinersClub = "Diners Club";
+        public static string Unknown = "Unknown";
     }
 }

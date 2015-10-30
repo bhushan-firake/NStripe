@@ -1,11 +1,47 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace NStripe
 {
+    #region Request
+
+    [Route("/disputes/{disputeId}", "GET")]
+    public class RetrieveStripeDispute : StripeRequestBase, IResponse<StripeDispute>
+    {
+        public string DisputeId { get; set; }
+    }
+
+    [Route("/disputes/{disputeId}", "POST")]
+    public class UpdateStripeDispute : StripeRequestBase, IResponse<StripeDispute>
+    {
+        [IgnoreDataMember]
+        public string DisputeId { get; set; }
+        public Dictionary<string, object> Evidence { get; set; }
+        public Dictionary<string, string> Metadata { get; set; }
+    }
+
+    [Route("/disputes/{disputeId}/close", "POST")]
+    public class CloseStripeDispute : StripeRequestBase, IResponse<StripeDispute>
+    {
+        [IgnoreDataMember]
+        public string DisputeId { get; set; }
+    }
+
+    [Route("/disputes", "GET")]
+    public class GetStripeDisputes : StripeRequestBase, IResponse<StripeCollection<StripeDispute>>
+    {
+        public int? Limit { get; set; }
+        public int? Offset { get; set; }
+
+        //TODO:Add Created date filter
+    }
+
+    #endregion Request
+
     public class StripeDispute : StripeId
     {
         public int Amount { get; set; }
