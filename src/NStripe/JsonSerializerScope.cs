@@ -1,36 +1,33 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace NStripe
 {
     internal class JsonSerializerScope : IDisposable
     {
-        private readonly Func<JsonSerializerSettings> holdSerializerSettings;
+        private readonly Func<JsonSerializerSettings> _holdSerializerSettings;
 
         public JsonSerializerScope()
         {
-            holdSerializerSettings = JsonConvert.DefaultSettings;
+            _holdSerializerSettings = JsonConvert.DefaultSettings;
 
-            JsonConvert.DefaultSettings = () =>
+            JsonConvert.DefaultSettings = () => new JsonSerializerSettings()
             {
-                return new JsonSerializerSettings()
-                 {
-                     NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore,
-                     ContractResolver = new LowercaseUnderscorePropertyNamesContractResolver(),
-                     Converters = new List<JsonConverter>
-                     {
-                         new StringEnumConverter(),
-                         new EpochDateTimeConverter()
-                     }
-                 };
+                NullValueHandling = NullValueHandling.Ignore,
+                ContractResolver = new LowercaseUnderscorePropertyNamesContractResolver(),
+                Converters = new List<JsonConverter>
+                {
+                    new StringEnumConverter(),
+                    new EpochDateTimeConverter()
+                }
             };
         }
 
         public void Dispose()
         {
-            JsonConvert.DefaultSettings = holdSerializerSettings;
+            JsonConvert.DefaultSettings = _holdSerializerSettings;
         }
     }
 }

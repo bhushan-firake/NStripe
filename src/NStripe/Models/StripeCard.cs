@@ -113,7 +113,7 @@ namespace NStripe
         public static string AmericanExpress = "American Express";
         public static string MasterCard = "MasterCard";
         public static string Discover = "Discover";
-        public static string JCB = "JCB";
+        public static string Jcb = "JCB";
         public static string DinersClub = "Diners Club";
         public static string Unknown = "Unknown";
     }

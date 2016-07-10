@@ -10,30 +10,30 @@ namespace NStripe
     {
         private const string BaseUrl = "https://api.stripe.com/v1";
 
-        private string apiKey;
-        private string publishableKey;
+        private string _apiKey;
+        private string _publishableKey;
 
         private ICredentials Credentials { get; set; }
         private string UserAgent { get; set; }
 
         public StripeGateway(string apiKey = null, string publishableKey = null)
         {
-            this.apiKey = apiKey;
-            this.publishableKey = publishableKey;
+            this._apiKey = apiKey;
+            this._publishableKey = publishableKey;
 
             if (string.IsNullOrEmpty(apiKey))
             {
                 string configuredApiKey = NStripeConfig.ApiKey;
                 if (string.IsNullOrEmpty(configuredApiKey))
                     throw new ConfigurationErrorsException("Stripe ApiKey not configured.");
-                this.apiKey = configuredApiKey;
+                this._apiKey = configuredApiKey;
             }
             else
             {
-                NStripeConfig.ApiKey = this.apiKey;
+                NStripeConfig.ApiKey = this._apiKey;
             }
 
-            Credentials = new NetworkCredential(this.apiKey, "");
+            Credentials = new NetworkCredential(this._apiKey, "");
             UserAgent = "NStripe";
         }
 
@@ -64,30 +64,47 @@ namespace NStripe
 
             try
             {
-                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                Stream responseStream = response.GetResponseStream();
-                using (StreamReader reader = new StreamReader(responseStream))
+                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
                 {
-                    result.RawResponse = reader.ReadToEnd();
+                    using (Stream responseStream = response.GetResponseStream())
+                    {
+                        if (responseStream != null)
+                        {
+                            using (StreamReader reader = new StreamReader(responseStream))
+                            {
+                                result.RawResponse = reader.ReadToEnd();
+                            }
+                        }
+                    }
+                    result.Success = true;
+                    result.StatusCode = response.StatusCode;
+                    result.StatusDescription = ((int)response.StatusCode).ToStripeDescription();
+                    result.Data = result.RawResponse.FromJson<T>();
+                    result.RequestId = response.Headers[StripeHeaders.RequestId];
+                    result.StripeVersion = response.Headers[StripeHeaders.StripeVersion];
                 }
-                result.Success = true;
-                result.StatusCode = response.StatusCode;
-                result.StatusDescription = ((int)response.StatusCode).ToStripeDescription();
-                result.Data = result.RawResponse.FromJson<T>();
-                result.RequestId = response.Headers[StripeHeaders.RequestId];
-                result.StripeVersion = response.Headers[StripeHeaders.StripeVersion];
             }
             catch (WebException ex)
             {
                 //result.Success = false;
 
-                var httpRes = ex.Response as HttpWebResponse;
-                using (var stream = httpRes.GetResponseStream())
-                using (var reader = new StreamReader(stream))
+                using (var httpRes = ex.Response as HttpWebResponse)
                 {
-                    result.RawResponse = reader.ReadToEnd();
+                    if (httpRes != null)
+                    {
+                        using (var stream = httpRes.GetResponseStream())
+                        {
+                            if (stream != null)
+                            {
+                                using (var reader = new StreamReader(stream))
+                                {
+                                    result.RawResponse = reader.ReadToEnd();
+                                }
+                            }
+                        }
+                        result.StatusCode = httpRes.StatusCode;
+                    }
                 }
-                result.StatusCode = httpRes.StatusCode;
                 result.StatusDescription = ((int)result.StatusCode).ToStripeDescription();
 
                 if (result.StatusCode >= HttpStatusCode.BadRequest && result.StatusCode < HttpStatusCode.InternalServerError)
@@ -122,21 +139,21 @@ namespace NStripe
             if ((httpMethod.Equals(HttpMethod.Post) || httpMethod.Equals(HttpMethod.Put)) && body == null)
                 throw new ArgumentNullException("body");
 
-            if (body != null)
+            if (body == null)
+                return request;
+
+            ASCIIEncoding encode = new ASCIIEncoding();
+            byte[] requestData = encode.GetBytes(body);
+            try
             {
-                ASCIIEncoding encode = new ASCIIEncoding();
-                byte[] requestData = encode.GetBytes(body);
-                try
+                using (Stream stream = request.GetRequestStream())
                 {
-                    using (Stream stream = request.GetRequestStream())
-                    {
-                        stream.Write(requestData, 0, requestData.Length);
-                    }
+                    stream.Write(requestData, 0, requestData.Length);
                 }
-                catch (Exception e)
-                {
-                    throw new Exception("body" + e);
-                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception("body" + e);
             }
 
             return request;

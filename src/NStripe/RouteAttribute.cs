@@ -2,7 +2,7 @@
 
 namespace NStripe
 {
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     internal class RouteAttribute : Attribute
     {
         public RouteAttribute(string path)

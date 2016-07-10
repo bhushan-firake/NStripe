@@ -71,8 +71,8 @@ namespace NStripe
 
     public enum StripeCouponDuration
     {
-        forever,
-        once,
-        repeating
+        Forever,
+        Once,
+        Repeating
     }
 }

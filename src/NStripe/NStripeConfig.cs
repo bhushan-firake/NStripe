@@ -4,12 +4,12 @@ namespace NStripe
 {
     public class NStripeConfig
     {
-        private static string supportedStripeVersion = "2015-10-16";
-        private static string apiKey;
+        private static string _supportedStripeVersion = "2015-10-16";
+        private static string _apiKey;
 
         static NStripeConfig()
         {
-            StripeVersion = supportedStripeVersion;
+            StripeVersion = _supportedStripeVersion;
         }
 
         public static string StripeVersion { get; private set; }
@@ -18,13 +18,13 @@ namespace NStripe
         {
             get
             {
-                if (string.IsNullOrEmpty(apiKey))
-                    apiKey = ConfigurationManager.AppSettings["Stripe:ApiKey"];
-                return apiKey;
+                if (string.IsNullOrEmpty(_apiKey))
+                    _apiKey = ConfigurationManager.AppSettings["Stripe:ApiKey"];
+                return _apiKey;
             }
             set
             {
-                apiKey = value;
+                _apiKey = value;
             }
         }
     }

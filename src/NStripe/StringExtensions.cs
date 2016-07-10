@@ -1,11 +1,11 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Web;
+using Newtonsoft.Json;
 
 namespace NStripe
 {
@@ -14,21 +14,20 @@ namespace NStripe
         public const long UnixEpoch = 621355968000000000L;
         private static readonly DateTime UnixEpochDateTimeUtc = new DateTime(UnixEpoch, DateTimeKind.Utc);
 
-        public static DateTime FromUnixTime(this long unixTime)
+        internal static DateTime FromUnixTime(this long unixTime)
         {
             return UnixEpochDateTimeUtc + TimeSpan.FromSeconds(unixTime);
         }
 
         internal static string ToJson<T>(this T TObject)
         {
-            if (TObject != null)
+            if (TObject == null)
+                return string.Empty;
+
+            using (new JsonSerializerScope())
             {
-                using (new JsonSerializerScope())
-                {
-                    return JsonConvert.SerializeObject(TObject);
-                }
+                return JsonConvert.SerializeObject(TObject);
             }
-            return string.Empty;
         }
 
         internal static T FromJson<T>(this string json)
@@ -60,10 +59,10 @@ namespace NStripe
 
                 var c1 = i < len - 1 ? value[i + 1] : 'A';
 
-                var c0isUpper = c0 >= 'A' && c0 <= 'Z';
-                var c1isUpper = c1 >= 'A' && c1 <= 'Z';
+                var c0IsUpper = c0 >= 'A' && c0 <= 'Z';
+                var c1IsUpper = c1 >= 'A' && c1 <= 'Z';
 
-                if (firstPart && c0isUpper && (c1isUpper || i == 0))
+                if (firstPart && c0IsUpper && (c1IsUpper || i == 0))
                     c0 = (char)(c0 + LowerCaseOffset);
                 else
                     firstPart = false;
@@ -82,14 +81,14 @@ namespace NStripe
             var sb = new StringBuilder(value.Length);
             foreach (char t in value)
             {
-                if (Char.IsDigit(t) || (Char.IsLetter(t) && Char.IsLower(t)) || t == '_')
+                if (char.IsDigit(t) || (char.IsLetter(t) && char.IsLower(t)) || t == '_')
                 {
                     sb.Append(t);
                 }
                 else
                 {
                     sb.Append("_");
-                    sb.Append(Char.ToLowerInvariant(t));
+                    sb.Append(char.ToLowerInvariant(t));
                 }
             }
             return sb.ToString();
@@ -97,10 +96,7 @@ namespace NStripe
 
         internal static string ToUrlEncoded(this string str)
         {
-            if (string.IsNullOrEmpty(str))
-                return "";
-
-            return HttpUtility.UrlEncode(str);
+            return string.IsNullOrEmpty(str) ? "" : HttpUtility.UrlEncode(str);
         }
 
         internal static string AppendParam(this string str, string key, string value)

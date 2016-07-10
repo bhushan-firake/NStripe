@@ -33,12 +33,9 @@ namespace NStripe
 
                 if (propertyValue == null) continue;
 
-                string propertyNameWithUnderscore = string.Empty;
-
-                if (string.IsNullOrEmpty(propertyName))
-                    propertyNameWithUnderscore = propertyInfo.Name.ToLowercaseUnderscore();
-                else
-                    propertyNameWithUnderscore = string.Format("{0}[{1}]", propertyName, propertyInfo.Name.ToLowercaseUnderscore());
+                string propertyNameWithUnderscore = string.IsNullOrEmpty(propertyName)
+                    ? propertyInfo.Name.ToLowercaseUnderscore()
+                    : string.Format("{0}[{1}]", propertyName, propertyInfo.Name.ToLowercaseUnderscore());
 
                 if (propertyValue.GetType().IsDictionary())
                 {
@@ -76,39 +73,41 @@ namespace NStripe
 
             var routeAttrbs = type.GetCustomAttributes(typeof(RouteAttribute), false);
 
-            if (routeAttrbs != null && routeAttrbs.Length > 0)
+            if (routeAttrbs.Length <= 0)
+                return string.Empty;
+
+            var route = routeAttrbs[0] as RouteAttribute;
+
+            if (route == null)
+                return string.Empty;
+
+            string templatedUrl = route.Path;
+
+            if (templatedUrl.Contains('{') && templatedUrl.Contains('}'))
             {
-                var route = routeAttrbs[0] as RouteAttribute;
-
-                string templatedUrl = route.Path;
-
-                if (templatedUrl.Contains('{') && templatedUrl.Contains('}'))
+                HashSet<PropertyInfo> propertyInfos;
+                if (!Cache.TypeCache.TryGetValue(type, out propertyInfos))
                 {
-                    HashSet<PropertyInfo> propertyInfos;
-                    if (!Cache.TypeCache.TryGetValue(type, out propertyInfos))
-                    {
-                        propertyInfos = new HashSet<PropertyInfo>(type.GetProperties());
-                        Cache.TypeCache.TryAdd(type, propertyInfos);
-                    }
-
-                    foreach (var propertyInfo in propertyInfos)
-                    {
-                        var replaceableValue = propertyInfo.GetValue(requestObject, null);
-
-                        if (replaceableValue == null)
-                            continue;
-
-                        string replaceableProperty = "{" + propertyInfo.Name.ToCamelCase() + "}";
-
-                        templatedUrl = templatedUrl.Replace(replaceableProperty, replaceableValue.ToString());
-                    }
+                    propertyInfos = new HashSet<PropertyInfo>(type.GetProperties());
+                    Cache.TypeCache.TryAdd(type, propertyInfos);
                 }
 
-                Console.WriteLine("Url Created in {0} ticks", timer.ElapsedTicks);
+                foreach (var propertyInfo in propertyInfos)
+                {
+                    var replaceableValue = propertyInfo.GetValue(requestObject, null);
 
-                return templatedUrl;
+                    if (replaceableValue == null)
+                        continue;
+
+                    string replaceableProperty = "{" + propertyInfo.Name.ToCamelCase() + "}";
+
+                    templatedUrl = templatedUrl.Replace(replaceableProperty, replaceableValue.ToString());
+                }
             }
-            return string.Empty;
+
+            Console.WriteLine("Url Created in {0} ticks", timer.ElapsedTicks);
+
+            return templatedUrl;
         }
 
         public static bool IsInstanceProperty(this PropertyInfo pi, Type type)

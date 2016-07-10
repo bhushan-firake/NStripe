@@ -1,5 +1,5 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
+using Newtonsoft.Json;
 
 namespace NStripe
 {
@@ -18,26 +18,18 @@ namespace NStripe
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            long ticks;
             DateTime valueAsDate = (DateTime)value;
-            if (valueAsDate != DateTime.MinValue)
+            if (valueAsDate == DateTime.MinValue)
+                return;
+
+            var epoc = new DateTime(1970, 1, 1);
+            var delta = (valueAsDate) - epoc;
+            if (delta.TotalSeconds < 0)
             {
-                if (value is DateTime)
-                {
-                    var epoc = new DateTime(1970, 1, 1);
-                    var delta = (valueAsDate) - epoc;
-                    if (delta.TotalSeconds < 0)
-                    {
-                        throw new ArgumentOutOfRangeException("Unix epoc starts January 1st, 1970");
-                    }
-                    ticks = (long)delta.TotalSeconds;
-                }
-                else
-                {
-                    throw new Exception("Expected date object value.");
-                }
-                writer.WriteValue(ticks);
+                throw new ArgumentOutOfRangeException("Unix epoc starts January 1st, 1970");
             }
+            var ticks = (long)delta.TotalSeconds;
+            writer.WriteValue(ticks);
         }
     }
 }
